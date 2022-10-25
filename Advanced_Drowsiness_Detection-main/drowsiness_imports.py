@@ -21,8 +21,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
+from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import Dataset, DataLoader
-from mlxtend.image import extract_face_landmarks
+# from mlxtend.image import extract_face_landmarks
 from imutils import face_utils
 from threading import Thread
 from scipy.spatial import distance 
@@ -32,6 +33,5 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn import preprocessing
 from IPython.display import clear_output
 from PIL import Image
-from torch.utils.tensorboard import SummaryWriter
 from captum.attr import GuidedGradCam
 from captum.attr import visualization as viz
