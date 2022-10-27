@@ -16,6 +16,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import ExtraTreesClassifier,  RandomForestClassifier
+from sklearn.svm import SVC
+from lightgbm import LGBMClassifier
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -87,58 +91,14 @@ df = df.drop(["Participant"], axis=1)
 df = df[df.Y != 5.0]  
 df.loc[df.Y == 0.0, "Y"] = int(0)
 df.loc[df.Y == 10.0, "Y"] = int(1)
-train_percentage = 17/22
-train_index = int(len(df)*train_percentage)
-test_index = len(df)-train_index
 
-df_train = df[:train_index]
-df_test = df[-test_index:]
-
-df_train
-
-X_test = df_test.drop(['Y'],axis = 1)
-y_test = df_test["Y"]
-
-X_train = df_train.drop(['Y'],axis=1)
-y_train = df_train['Y']
-
-#KNN
 
 df_X = df.drop(['Y'], axis=1)
 df_y = df['Y']
 
-acc3_list = []
-f1_score3_list = []
-roc_3_list = []
-from sklearn.neighbors import KNeighborsClassifier
-for i in range(1,45):
-    neigh = KNeighborsClassifier(n_neighbors=i)
-    neigh.fit(X_train, y_train) 
-    pred_KN = neigh.predict(X_test)
-    #pKN = np.mean(pred_KN)
-    #print(pred_KN.shape)
-    #pred_KN2 = np.array([pKN for i in pred_KN])
-    #print(pred_KN2)
-    pred_KN = average(pred_KN)
-    # print(pred_KN)
-    y_score_3 = neigh.predict_proba(X_test)[:,1]
-    acc3_list.append(accuracy_score(y_test, pred_KN))
-    f1_score3_list.append(metrics.f1_score(y_test, pred_KN, average = None))
-    roc_3_list.append(metrics.roc_auc_score(y_test, y_score_3))
     
     
-# neigh = KNeighborsClassifier(n_neighbors=acc3_list.index(max(acc3_list))+1)
-# neigh = KNeighborsClassifier(n_neighbors=3)
-# neigh.fit(X_train, y_train) 
-# pred_KN = neigh.predict(X_test)
-# pred_KN = average(pred_KN)
-# y_score_3 = neigh.predict_proba(X_test)[:,1]
-# acc3 = accuracy_score(y_test, pred_KN)
-# f1_score_3 = metrics.f1_score(y_test, pred_KN, average = None)
-# roc_3 = metrics.roc_auc_score(y_test, y_score_3)
-# print([acc3,f1_score_3,roc_3])
-# print(confusion_matrix(y_test, pred_KN))
-neigh = KNeighborsClassifier(n_neighbors=acc3_list.index(max(acc3_list))+1)
+neigh = KNeighborsClassifier()
 neigh.fit(df_X, df_y)
 
 def model(landmarks):
@@ -242,19 +202,19 @@ def live():
             shape = face_utils.shape_to_np(shape)
             Result, features = model(shape)
             if Result == 1:
+                Result_String1 = "Drowsy"
+            else:
+                Result_String1 = "Alert"
+            # cv2.putText(image,Result_String, (9, 400), font, fontScale, fontColor,lineType)
+            res_list.append(Result)
+            if(len(res_list) > 10):
+                res_list.pop(0)
+            Result = sum(res_list) / len(res_list)
+            if Result > 0.4:
                 Result_String = "Drowsy"
             else:
                 Result_String = "Alert"
-            cv2.putText(image,Result_String, (9, 400), font, fontScale, fontColor,lineType)
-            # res_list.append(Result)
-            # if(len(res_list) > 10):
-            #     res_list.pop(0)
-            # Result = sum(res_list) / len(res_list)
-            # if Result > 0.4:
-            #     Result_String = "Drowsy"
-            # else:
-            #     Result_String = "Alert"
-            # cv2.putText(image,Result_String, bottomLeftCornerOfText, font, fontScale, fontColor,lineType)
+            cv2.putText(image,Result_String+ " " + Result_String1, bottomLeftCornerOfText, font, fontScale, fontColor,lineType)
             data.append (features)
             result.append(Result_String)
             # Draw on our image, all the finded cordinate points (x,y) 
