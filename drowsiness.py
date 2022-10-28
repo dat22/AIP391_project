@@ -6,7 +6,6 @@ from scipy.spatial import distance
 import math
 import pandas as pd
 import numpy as np
-
 from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -84,7 +83,6 @@ def average(y_pred):
 
 #Read in the Data file to Train Model
 df = pd.read_csv('Advanced_Drowsiness_Detection-main/data_drowsiness/prepared/totalwithmaininfo.csv',sep=',')
-print(df.info)
 #df = df.drop(df.columns[0],axis=1)
 participants = set(df.Participant)
 df = df.drop(["Participant"], axis=1)
@@ -95,13 +93,12 @@ df.loc[df.Y == 10.0, "Y"] = int(1)
 
 df_X = df.drop(['Y'], axis=1)
 df_y = df['Y']
-
     
     
-neigh = KNeighborsClassifier()
+neigh = KNeighborsClassifier(n_neighbors=30)
 neigh.fit(df_X, df_y)
 
-def model(landmarks):
+def model(landmarks, mean, std):
 
     features = pd.DataFrame(columns=["EAR","MAR","Circularity","MOE"])
 
@@ -122,9 +119,23 @@ def model(landmarks):
     
     return Result, df.values
 
-def calibration():
+font                   = cv2.FONT_HERSHEY_SIMPLEX
+bottomLeftCornerOfText = (10,400)
+fontScale              = 1
+fontColor              = (255,255,255)
+lineType               = 2
+
+def live(device, url):
+    if device == 'CAMERA_LAPTOP':
+        cap = cv2.VideoCapture(0)
+    elif device == 'CAMERA_PHONE':
+        try:
+            cap = cv2.VideoCapture(url)
+        except:
+            print('wrong url')
+            return
+
     data = []
-    cap = cv2.VideoCapture(0)
     cnt = 0
     while True:
         # Getting out image by webcam 
@@ -150,14 +161,10 @@ def calibration():
 
         # Show the image
         cv2.imshow("Output", image)
-
-        k = cv2.waitKey(5) & 0xFF
-        if k == 27 or cnt == 100:
+        if cnt == 1000:
             break
-    
-    cv2.destroyAllWindows()
-    cap.release()
-    
+        if cv2.waitKey(300) & 0xFF == ord('q'):
+            break
     
     features_test = []
     for d in data:
@@ -173,17 +180,6 @@ def calibration():
     y = pd.DataFrame(x,columns=["EAR","MAR","Circularity","MOE"])
     df_means = y.mean(axis=0)
     df_std = y.std(axis=0)
-    
-    return df_means,df_std
-
-font                   = cv2.FONT_HERSHEY_SIMPLEX
-bottomLeftCornerOfText = (10,400)
-fontScale              = 1
-fontColor              = (255,255,255)
-lineType               = 2
-
-def live():
-    cap = cv2.VideoCapture(0)
     data = []
     result = []
     res_list = []
@@ -200,7 +196,7 @@ def live():
             # Make the prediction and transfom it to numpy array
             shape = predictor(gray, rect)
             shape = face_utils.shape_to_np(shape)
-            Result, features = model(shape)
+            Result, features = model(shape, df_means, df_std)
             if Result == 1:
                 Result_String1 = "Drowsy"
             else:
@@ -214,7 +210,7 @@ def live():
                 Result_String = "Drowsy"
             else:
                 Result_String = "Alert"
-            cv2.putText(image,Result_String+ " " + Result_String1, bottomLeftCornerOfText, font, fontScale, fontColor,lineType)
+            cv2.putText(image,Result_String, bottomLeftCornerOfText, font, fontScale, fontColor,lineType)
             data.append (features)
             result.append(Result_String)
             # Draw on our image, all the finded cordinate points (x,y) 
@@ -223,21 +219,14 @@ def live():
 
         # Show the image
         cv2.imshow("Output", image)
-
-        k = cv2.waitKey(300) & 0xFF
-        if k == 27:
+        if cv2.waitKey(300) & 0xFF == ord('q'):
             break
 
     cv2.destroyAllWindows()
     cap.release()
     
-    return data,result
+    return
 
-font                   = cv2.FONT_HERSHEY_SIMPLEX
-bottomLeftCornerOfText = (10,400)
-fontScale              = 1
-fontColor              = (255,255,255)
-lineType               = 2
 
-mean, std = calibration()
-features, result = live()
+def main_function(device, url):
+    live(device, url)
