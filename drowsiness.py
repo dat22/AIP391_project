@@ -6,19 +6,14 @@ from scipy.spatial import distance
 import math
 import pandas as pd
 import numpy as np
-from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve, roc_auc_score, f1_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
-from sklearn.neural_network import MLPClassifier
-from sklearn.naive_bayes import BernoulliNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import ExtraTreesClassifier,  RandomForestClassifier
 from sklearn.svm import SVC
-from lightgbm import LGBMClassifier
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -29,7 +24,7 @@ from sklearn import metrics
 import warnings
 from sklearn import preprocessing
 
-p = "Advanced_Drowsiness_Detection-main/shape_predictor_68_face_landmarks.dat"
+p = "shape_predictor_68_face_landmarks.dat"
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(p)
 
@@ -82,7 +77,7 @@ def average(y_pred):
     return y_pred
 
 #Read in the Data file to Train Model
-df = pd.read_csv('Advanced_Drowsiness_Detection-main/data_drowsiness/prepared/totalwithmaininfo.csv',sep=',')
+df = pd.read_csv('totalwithmaininfo.csv',sep=',')
 #df = df.drop(df.columns[0],axis=1)
 participants = set(df.Participant)
 df = df.drop(["Participant"], axis=1)
@@ -161,7 +156,9 @@ def live(device, url):
 
         # Show the image
         cv2.imshow("Output", image)
-        if cnt == 1000:
+        if cnt == 35 and device == 'CAMERA_LAPTOP':
+            break
+        if cnt == 1000 and device == 'CAMERA_PHONE':
             break
         if cv2.waitKey(300) & 0xFF == ord('q'):
             break

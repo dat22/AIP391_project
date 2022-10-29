@@ -10,7 +10,7 @@ pygame.init()
 # screen resolution
 res = (1280, 720)
 mytheme = pygame_menu.themes.THEME_ORANGE.copy()
-mytheme.title_background_color=(0, 0, 0)
+mytheme.title_background_color=(255, 0, 0)
 myimage = pygame_menu.baseimage.BaseImage(
     image_path='background.jpg',
     drawing_mode=pygame_menu.baseimage.IMAGE_MODE_FILL,
@@ -36,17 +36,17 @@ phone_menu.add.button('Start',get_url_and_start)
 second_menu = pygame_menu.Menu('Select device', 1280, 720,
                     theme=mytheme)
 
-second_menu.add.button('Camera_Laptop',start,'CAMERA_LAPTOP','')
-second_menu.add.button('Camera_Phone',phone_menu)
-second_menu.add.button('Video',start,'VIDEO','')
-second_menu.add.button('Exit', pygame_menu.events.EXIT)
+second_menu.add.button('Camera_Laptop',start,'CAMERA_LAPTOP','', font_color = (255, 0, 0))
+second_menu.add.button('Camera_Phone',phone_menu, font_color = (255, 0, 0))
+second_menu.add.button('Video',start,'VIDEO','', font_color = (255, 0, 0))
+second_menu.add.button('Exit', pygame_menu.events.EXIT, font_color = (255, 0, 0))
 
 
 # main menu
-menu = pygame_menu.Menu('Fire detection', 1280, 720,
+menu = pygame_menu.Menu('Drowsiness detection', 1280, 720,
                         theme=mytheme)
 
-menu.add.text_input('Enter your name: ', default='')
-menu.add.button('Next',second_menu)
-menu.add.button('Exit',pygame_menu.events.EXIT)
+menu.add.text_input('Enter your name: ', default='', font_color = (255, 0, 0))
+menu.add.button('Next',second_menu, font_color = (255, 0, 0))
+menu.add.button('Exit',pygame_menu.events.EXIT, font_color = (255, 0, 0))
 menu.mainloop(screen)
